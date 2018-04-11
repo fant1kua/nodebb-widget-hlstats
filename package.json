@@ -1,0 +1,11 @@
+{
+  "name": "nodebb-widget-hlstats",
+  "version": "1.0.0",
+  "description": "",
+  "main": "library.js",
+  "author": "",
+  "license": "MIT",
+  "nbbpm": {
+    "compatibility": "^1.0.0"
+  }
+}

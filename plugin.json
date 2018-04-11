@@ -1,0 +1,20 @@
+{
+	"id": "nodebb-widget-hlstats",
+	"name": "NodeBB GoldSrc Servers Stats",
+	"description": "",
+	"url": "",
+	"library": "./library.js",
+	"hooks": [{
+		"hook": "static:app.load",
+		"method": "init"
+	}, {
+		"hook": "filter:widgets.getWidgets",
+		"method": "defineWidget"
+	}, {
+		"hook": "filter:widget.render:hlstats",
+		"method": "renderWidget"
+	}],
+	"templates": "./templates",
+	"css": [],
+	"less": []
+}
