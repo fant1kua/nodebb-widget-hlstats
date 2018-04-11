@@ -3,10 +3,16 @@
 const path = require('path');
 const fs = require('fs');
 const winston = module.parent.require('winston');
+const benchpress = module.parent.require('benchpressjs');
+const NodeCache = require( "node-cache" );
+
 const serverQuery = require('./src/serverQuery');
 
-
-const benchpress = module.parent.require('benchpressjs');
+const cache = new NodeCache({
+	errorOnMissing: false,
+	checkperiod: 60,
+	deleteOnExpire: true
+});
 
 const templates = {};
 
@@ -18,6 +24,24 @@ function loadTemplate(template) {
 			} else {
 				templates[template] = data.toString();
 				resolve();
+			}
+		});
+	});
+}
+
+function getInfoForServer(ip, port) {
+	return new Promise(function (resolve, reject) {
+		cache.get(`hlstats_${ip}_${port}`, function(err, info) {
+			if (err) {
+				reject(err);
+			} else if (!info) {
+				serverQuery.send(ip, port, serverQuery.TYPE_INFO)
+					.then(info => {
+						cache.set(`hlstats_${ip}_${port}`, info, 60);
+						resolve(info);
+					})
+			} else {
+				resolve(info);
 			}
 		});
 	});
@@ -45,7 +69,7 @@ module.exports = {
 		callback(null, widgets);
 	},
 	renderWidget: function(widget, callback) {
-		serverQuery.send(widget.data.ip, widget.data.port, serverQuery.TYPE_INFO)
+		getInfoForServer(widget.data.ip, widget.data.port)
 			.then(info => benchpress.compileRender(templates.info, {
 				info,
 			})).then(function(html) {
